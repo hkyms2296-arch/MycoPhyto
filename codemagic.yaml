@@ -1,0 +1,31 @@
+workflows:
+  mycophyto-android:
+    name: MycoPhyto Android Build
+    max_build_duration: 60
+
+    environment:
+      flutter: stable
+      java: 17
+
+    scripts:
+      - name: Extract and build MycoPhyto APK
+        script: |
+          set -e
+          mkdir -p app
+          if [ ! -f MycoPhyto_Android_Build.zip ]; then
+            echo "ERROR: MycoPhyto_Android_Build.zip not found"
+            exit 1
+          fi
+          unzip -q MycoPhyto_Android_Build.zip -d app
+          PROJECT_DIR=$(find app -name pubspec.yaml -print -quit | xargs dirname)
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ERROR: Flutter project not found"
+            exit 1
+          fi
+          cd "$PROJECT_DIR"
+          flutter create --platforms=android .
+          flutter pub get
+          flutter build apk --release
+
+    artifacts:
+      - app/**/build/app/outputs/flutter-apk/*.apk
