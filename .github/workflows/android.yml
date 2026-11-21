@@ -29,12 +29,12 @@ jobs:
       - name: Extract project
         run: |
           mkdir app
-          unzip MycoPhyto_Android_Build.zip -d app
+          unzip MycoPhyto_Android_Build_New.zip -d app
 
       - name: Build APK
         working-directory: app
         run: |
-          flutter create --platforms=android .
+          flutter create --platforms=android --org com.mycophyto --project-name mycophyto_scientific .
           flutter pub get
           flutter build apk --release --no-pub
 
