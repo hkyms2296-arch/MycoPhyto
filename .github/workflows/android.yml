@@ -34,7 +34,7 @@ jobs:
       - name: Build APK
         working-directory: app
         run: |
-          flutter create --platforms=android --org com.mycophyto --project-name mycophyto_scientific .
+          flutter create --platforms=android --org com.mycophyto --project-name scientific .
           flutter pub get
           flutter build apk --release --no-pub
 
