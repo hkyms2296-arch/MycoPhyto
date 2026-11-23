@@ -35,6 +35,7 @@ jobs:
         working-directory: app
         run: |
           flutter create --platforms=android --org com.mycophyto --project-name scientific .
+          sed -i 's/android:label="scientific"/android:label="MycoPhyto"/' android/app/src/main/AndroidManifest.xml
           flutter pub get
           flutter build apk --release --no-pub
 
