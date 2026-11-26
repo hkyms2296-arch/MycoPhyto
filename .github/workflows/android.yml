@@ -7,40 +7,53 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get project
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Extract integrated source package
+        run: |
+          test -f MycoPhyto_Phase2_Integrated_Source.zip
+          unzip -o MycoPhyto_Phase2_Integrated_Source.zip -d .
+
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - name: Extract project
-        run: |
-          mkdir app
-          unzip 'MycoPhyto_Android_Build_New(2)-1.zip' -d app
+      - name: Generate Android platform files
+        run: flutter create --platforms=android --org com.mycophyto --project-name app .
 
-      - name: Build APK
-        working-directory: app
-        run: |
-          flutter create --platforms=android --org com.mycophyto --project-name scientific .
-          sed -i 's/android:label="scientific"/android:label="MycoPhyto"/' android/app/src/main/AndroidManifest.xml
-          flutter pub get
-          flutter build apk --release --no-pub
+      - name: Set app display name
+        run: sed -i 's/android:label="app"/android:label="MycoPhyto"/' android/app/src/main/AndroidManifest.xml
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze Dart source
+        run: flutter analyze --no-pub
+
+      - name: Build release APK
+        run: flutter build apk --release --no-pub
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MycoPhyto-APK
-          path: app/build/app/outputs/flutter-apk/app-release.apk
+          name: MycoPhyto-Phase2-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
